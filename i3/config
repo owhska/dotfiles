@@ -4,7 +4,7 @@ include $HOME/.config/i3/rules.conf
 set $mod Mod4
 
 # CORRIGIDO: tamanho da fonte válido
-font pango:monospace 12
+font pango:monospace 8
 
 exec_always --no-startup-id ~/.config/i3/scripts/autostart.sh
 
@@ -15,13 +15,14 @@ bar {
     status_command i3status
     position top
     tray_output primary
-    separator_symbol "•"
+    separator_symbol "."
 
-	colors {
-        statusline #ffffff
-        separator  #ffffff
-        
+    colors {
+        statusline        #ffffff
+        separator         #ffffff
+
         focused_workspace #00808080 #ffffff
-        active_workspace #285577 #ffffff 
-        urgent_workspace #2F343A #ffffff
+        active_workspace  #285577   #ffffff
+        urgent_workspace  #2F343A   #ffffff
+    }
 }
