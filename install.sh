@@ -211,7 +211,7 @@ if [ "$ONLY_CONFIG" = false ]; then
     cat > ~/.config/kitty/kitty.conf << 'EOF'
     # Kitty config with transparency
     font_family FiraCode Nerd Font
-    font_size 15.0
+    font_size 13.0
     
     # Transparency
     background_opacity 0.85
