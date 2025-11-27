@@ -6,6 +6,7 @@ set $mod Mod4
 # CORRIGIDO: tamanho da fonte válido
 font pango:monospace 8
 
+exec --no-startup-id picom --config ~/.config/i3/picom/picom.conf
 exec_always --no-startup-id ~/.config/i3/scripts/autostart.sh
 exec_always --no-startup-id picom
 exec --no-startup-id picom --experimental-backends
