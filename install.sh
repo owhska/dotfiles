@@ -215,6 +215,8 @@ if [ "$ONLY_CONFIG" = false ]; then
     
     # Transparency
     background_opacity 0.85
+
+    window_padding_width 40
     
     # Mouse
     mouse_hide_wait 3.0
