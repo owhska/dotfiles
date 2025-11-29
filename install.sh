@@ -214,7 +214,7 @@ if [ "$ONLY_CONFIG" = false ]; then
     font_size 13.0
     
     # Transparency
-    background_opacity 0.85
+    background_opacity 0.6
 
     window_padding_width 40
     
