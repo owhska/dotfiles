@@ -363,7 +363,6 @@ fi
         python3
         python3.11
         nodejs
-        elixir
         )
     sudo apt install -y "${optional_packages[@]}" || msg "Some optional tools failed to install"
     msg "Optional tools installation completed"
