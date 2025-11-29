@@ -436,6 +436,8 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+
 # Aliases úteis
 alias ls='eza --icons --group-directories-first'
 alias ll='eza -la --icons --group-directories-first'
