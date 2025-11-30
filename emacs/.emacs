@@ -332,39 +332,44 @@ Ex: 'Modulo' finds Modulo.java, ModuloMapper.java, ModuloService.java
 
 ;;; === NATIVE GIT INTEGRATION ===
 
+(defun my-git-status-info ()
+  "Return Git branch and status information."
+  (when (and (buffer-file-name)
+             (locate-dominating-file default-directory ".git"))
+    (let* ((git-dir (locate-dominating-file default-directory ".git"))
+           (branch (with-temp-buffer
+                     (cd git-dir)
+                     (when (zerop (call-process "git" nil t nil 
+                                               "branch" "--show-current"))
+                       (string-trim (buffer-string)))))
+           (status (with-temp-buffer
+                     (cd git-dir)
+                     (call-process "git" nil t nil "status" "--porcelain")
+                     (if (> (buffer-size) 0) "!" ""))))
+      (when branch
+        (format "  %s%s" branch status)))))
+
 ;; Native VC (Version Control) - much lighter
 (setq vc-handled-backends '(Git))
 (setq vc-follow-symlinks t)
 
 ;; Mode-line with native Git info
-(setq mode-line-format
-  '("%e"  ; error if file doesn't end with newline
-  
-    ;; 1. Buffer coding
-    (:eval (let ((coding (coding-system-plist buffer-file-coding-system)))
-             (when (plist-get coding :name)
-               (propertize (format " %s " (upcase (plist-get coding :name)))
-                         'face 'font-lock-comment-face))))
-    
-    " " ; separator
-    
-    ;; 2. Buffer name
-    mode-line-buffer-identification
-    
-    " " ; separator
-    
-    ;; 3. Git version control system
-    (:eval (when (and vc-mode (not (string= vc-mode "")))
-             (propertize (format " %s " vc-mode)
-                         'face 'font-lock-type-face)))
-    
-    " " ; separator
-    
-    ;; 4. Major mode - just the language
-    (:eval (propertize (format " %s " (capitalize (symbol-name major-mode)))
-                       'face 'font-lock-keyword-face))
-    
-    ;; Final space for alignment
+;; Mode-line minimalista mas funcional
+
+(setq-default mode-line-format
+  '("%e"
+    " "
+    (:propertize "%b" face mode-line-buffer-id)
+    "  "
+    (:eval (when (buffer-modified-p)
+             (propertize "●" 'face 'error)))
+    " "
+    (:eval (when-let ((git-info (my-git-status-info)))
+             (propertize git-info 'face 'font-lock-type-face)))
+    "   "
+    (:propertize mode-name face font-lock-keyword-face)
+    "   "
+    "%l:%c"
     " "))
 
 (force-mode-line-update t)
