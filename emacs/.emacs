@@ -361,16 +361,16 @@ Ex: 'Modulo' finds Modulo.java, ModuloMapper.java, ModuloService.java
     " "
     (:propertize "%b" face mode-line-buffer-id)
     "  "
-    (:eval (when (buffer-modified-p)
-             (propertize "●" 'face 'error)))
-    " "
     (:eval (when-let ((git-info (my-git-status-info)))
              (propertize git-info 'face 'font-lock-type-face)))
     "   "
+
     (:propertize mode-name face font-lock-keyword-face)
     "   "
     "%l:%c"
-    " "))
+    "   " 
+    (:eval (when (buffer-modified-p)
+	     (propertize "●" 'face 'error)))))
 
 (force-mode-line-update t)
 
