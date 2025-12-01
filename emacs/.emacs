@@ -283,6 +283,7 @@ Ex: 'Modulo' finds Modulo.java, ModuloMapper.java, ModuloService.java
 (setq warning-minimum-level :emergency)
 (global-set-key [C-tab] 'other-window)
 (global-set-key (kbd "C-c c") 'compile)
+(global-set-key (kbd "C-c x") 'execute-extended-command)
 
 ;; SEARCH SHORTCUTS CONFIGURATION
 (global-set-key (kbd "C-s") 'my-enhanced-isearch)        ; Incremental search
