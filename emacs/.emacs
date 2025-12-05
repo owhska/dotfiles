@@ -15,6 +15,9 @@
 (setq idle-update-delay 2.0)
 (setq redisplay-skip-fontification-on-input t)
 (setq auto-window-vscroll nil)
+
+
+
 (setq fast-but-imprecise-scrolling t)
 (setq jit-lock-stealth-time 10)
 (setq jit-lock-defer-time 1.0)
@@ -284,6 +287,117 @@ Ex: 'Modulo' finds Modulo.java, ModuloMapper.java, ModuloService.java
 (global-set-key [C-tab] 'other-window)
 (global-set-key (kbd "C-c c") 'compile)
 (global-set-key (kbd "C-c x") 'execute-extended-command)
+
+;;; === CLIPBOARD INTEGRATION (Copy/Paste between Emacs and OS) ===
+
+;; Configure clipboard integration
+(setq select-enable-clipboard t)      ; Make killing and yanking use clipboard
+(setq select-enable-primary t)        ; Also use primary selection (middle click)
+(setq save-interprogram-paste-before-kill t) ; Save clipboard before killing
+(setq mouse-drag-copy-region t)       ; Mouse selection copies to clipboard
+
+;; Function to copy to system clipboard (C-c C-c)
+(defun my-copy-to-clipboard ()
+  "Copy region to system clipboard."
+  (interactive)
+  (if (use-region-p)
+      (progn
+        (kill-ring-save (region-beginning) (region-end))
+        (message "Copied to clipboard!"))
+    (message "No region selected!")))
+
+;; Function to paste from system clipboard (C-c C-v)
+(defun my-paste-from-clipboard ()
+  "Paste from system clipboard."
+  (interactive)
+  (yank)
+  (message "Pasted from clipboard!"))
+
+;; Function to cut to system clipboard (C-c C-x)
+(defun my-cut-to-clipboard ()
+  "Cut region to system clipboard."
+  (interactive)
+  (if (use-region-p)
+      (progn
+        (kill-region (region-beginning) (region-end))
+        (message "Cut to clipboard!"))
+    (message "No region selected!")))
+
+;; Configure Evil Mode for better clipboard integration
+(defun my-configure-evil-clipboard ()
+  "Configure Evil Mode for clipboard operations."
+  (when (featurep 'evil)
+    ;; In Evil normal mode: y copies to clipboard
+    (define-key evil-normal-state-map "y" 'evil-yank)
+    (define-key evil-visual-state-map "y" 'evil-yank)
+    
+    ;; In Evil normal mode: p pastes from clipboard
+    (define-key evil-normal-state-map "p" 'evil-paste-after)
+    (define-key evil-normal-state-map "P" 'evil-paste-before)
+    
+    ;; In insert mode: C-y pastes from clipboard
+    (define-key evil-insert-state-map (kbd "C-y") 'yank)))
+
+;; Alternative keybindings (more standard)
+(global-set-key (kbd "C-c C-c") 'my-copy-to-clipboard)
+(global-set-key (kbd "C-c C-v") 'my-paste-from-clipboard)
+(global-set-key (kbd "C-c C-x") 'my-cut-to-clipboard)
+
+;; Use C-c y and C-c p as simpler alternatives
+(global-set-key (kbd "C-c y") 'my-copy-to-clipboard)
+(global-set-key (kbd "C-c p") 'my-paste-from-clipboard)
+
+;; Set up clipboard after Evil loads
+(add-hook 'evil-mode-hook 'my-configure-evil-clipboard)
+
+;; Workaround for terminal Emacs
+(when (not (display-graphic-p))
+  ;; For terminal Emacs, we need to use xclip/xsel
+  (cond
+   ((executable-find "xclip")
+    (setq x-select-enable-clipboard t)
+    (defun xclip-copy (start end)
+      (interactive "r")
+      (shell-command-on-region start end "xclip -selection clipboard"))
+    (defun xclip-paste ()
+      (interactive)
+      (insert (shell-command-to-string "xclip -selection clipboard -o")))
+    (global-set-key (kbd "C-c C-c") 'xclip-copy)
+    (global-set-key (kbd "C-c C-v") 'xclip-paste))
+   
+   ((executable-find "pbcopy") ; macOS
+    (setq x-select-enable-clipboard t)
+    (defun pbcopy-copy (start end)
+      (interactive "r")
+      (shell-command-on-region start end "pbcopy"))
+    (defun pbpaste-paste ()
+      (interactive)
+      (insert (shell-command-to-string "pbpaste")))
+    (global-set-key (kbd "C-c C-c") 'pbcopy-copy)
+    (global-set-key (kbd "C-c C-v") 'pbpaste-paste))))
+
+;;; === IMPROVED YANK/POP FUNCTIONALITY ===
+
+;; Make yank (paste) show what was yanked
+(setq yank-excluded-properties t)  ; Don't copy text properties
+(setq yank-pop-change-selection t) ; Change selection when yank-popping
+
+;; Function to show yanked text in minibuffer
+(defun my-yank-advice (orig-fun &rest args)
+  "Show yanked text in minibuffer."
+  (let ((result (apply orig-fun args)))
+    (when (and kill-ring (not (string= (car kill-ring) "")))
+      (let ((text (car kill-ring)))
+        (message "Yanked: %s" 
+                 (if (> (length text) 50)
+                     (concat (substring text 0 47) "...")
+                   text))))
+    result))
+
+;; Enable the advice
+(advice-add 'yank :around 'my-yank-advice)
+(advice-add 'evil-paste-after :around 'my-yank-advice)
+(advice-add 'evil-paste-before :around 'my-yank-advice)
 
 ;; SEARCH SHORTCUTS CONFIGURATION
 (global-set-key (kbd "C-s") 'my-enhanced-isearch)        ; Incremental search
