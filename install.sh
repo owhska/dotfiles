@@ -108,6 +108,7 @@ PACKAGES_TERMINAL=(
     suckless-tools
     neovim
     emacs-gtk
+    ripgrep
 )
 
 PACKAGES_FONTS=(
