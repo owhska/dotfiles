@@ -6,8 +6,8 @@
 
 ### Quick Install
 ```bash
-git clone https://https://github.com/owhska/i3-setup.git
-cd i3-setup
+git clone https://https://github.com/owhska/setup.git
+cd setup
 chmod +x install.sh
 ./install.sh
 
