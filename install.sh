@@ -741,16 +741,12 @@ EOF
                 fi
                 
                 # Instalar SDDM sem recomendações (evita KDE)
-                if sudo apt install -y --no-install-recommends sddm sddm-themes > /dev/null 2>&1; then
+                if sudo apt install -y --no-install-recommends sddm> /dev/null 2>&1; then
                     # Desabilitar quaisquer outros DMs que possam ter sido instalados
                     sudo systemctl disable gdm3 lightdm 2>/dev/null || true
                     
                     # Habilitar SDDM
                     sudo systemctl enable sddm 2>/dev/null
-                    
-                    # Configurar tema do SDDM (opcional)
-                    sudo mkdir -p /etc/sddm.conf.d/
-                    echo -e "[Theme]\nCurrent=breeze" | sudo tee /etc/sddm.conf.d/theme.conf > /dev/null 2>&1
                     
                     echo -e "${GREEN}${CHECKMARK} ${name} (SDDM instalado e configurado)${NC}"
                 else
