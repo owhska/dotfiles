@@ -506,7 +506,7 @@ EOF
     
     # Gerenciador de login
     msg "Configurando gerenciador de login (sddm)..."
-    if sudo apt install -y --no-install-recommends sddm sddm-themes > /dev/null 2>&1; then
+    if sudo apt install -y --no-install-recommends sddm > /dev/null 2>&1; then
         sudo systemctl enable sddm 2>/dev/null && success "SDDM configurado"
     fi
     
