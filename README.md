@@ -110,20 +110,4 @@ Super + Shift + Enter    # Default terminal scratchpad
 Super + V                # Pulsemixer scratchpad
 # Or via script: scratchpad app_name app_command
 ```
-
----
-
-## 🎨 Modular Configuration
-
-This i3 setup uses a modular configuration approach for better organization:
-- **config**: Main i3 configuration with includes
-- **workspaces.conf**: Workspace definitions (1-10)
-- **rules.conf**: Window rules, borders, gaps, and scratchpad settings
-- **sxhkd/sxhkdrc**: All keybindings managed by sxhkd for consistency
-
-This modular approach makes it easy to:
-- Understand and modify specific aspects of the configuration
-- Share configurations between different window managers
-- Keep the main config file clean and focused
-
----
+--
