@@ -435,13 +435,30 @@ if [ "$ONLY_CONFIG" = false ]; then
             msg "Aviso: Diretório do Oh My Zsh não encontrado, pulando plugins..."
         fi
 
+        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        CUSTOM_THEME_SOURCE="$SCRIPT_DIR/custom.zsh-theme"
+        CUSTOM_THEME_DEST="$HOME/.oh-my-zsh/themes/custom.zsh-theme"
+
+        if [ -f "$CUSTOM_THEME_SOURCE" ]; then
+            # Garante que o diretório de temas existe
+            mkdir -p "$(dirname "$CUSTOM_THEME_DEST")"
+            msg "Copiando tema personalizado..."
+            cp "$CUSTOM_THEME_SOURCE" "$CUSTOM_THEME_DEST"
+            chown $USER:$USER "$CUSTOM_THEME_DEST" 2>/dev/null || true
+            msg "✓ Tema personalizado copiado com sucesso!"
+        else
+            msg "Aviso: Arquivo custom.zsh-theme não encontrado em $CUSTOM_THEME_SOURCE"
+            msg "  Procurando em: $(pwd)/custom.zsh-theme"
+        fi
+       
         msg "Configurando .zshrc personalizado..."
         # Cria .zshrc personalizado
         cat > "$HOME/.zshrc" << 'EOF'
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
-ZSH_THEME="robbyrussell"
+# ZSH_THEME="robbyrussell"
+ZSH_THEME="custom"
 
 plugins=(
     git
