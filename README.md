@@ -1,7 +1,3 @@
-# 🪟 Setup
-
---
-
 ## 🚀 Installation
 
 ### Quick Install
