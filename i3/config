@@ -10,6 +10,8 @@ font pango:monospace 8
 exec --no-startup-id picom --config ~/.config/i3/picom/picom.conf --backend glx -b
 exec_always --no-startup-id ~/.config/i3/scripts/autostart.sh
 
+bindsym $mod+Shift+Escape exec --no-startup-id ~/.config/i3/scripts/power
+
 # Use Mouse+$mod to drag floating windows
 floating_modifier $mod
 
