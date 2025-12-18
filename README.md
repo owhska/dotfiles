@@ -18,7 +18,7 @@ chmod +x install.sh
 | `polybar`             | Status bar                       |
 | `rofi`                | Application launcher             |
 | `dunst`               | Notifications                    |
-| `wezterm`             | Terminal emulator (main)         |
+| `kitty`               | Terminal emulator (main)         |
 | `st`                  | Simple terminal (scratchpad)     |
 | `firefox-esr`         | Default web browser              |
 | `thunar` + plugins    | File manager                     |
@@ -51,7 +51,7 @@ chmod +x install.sh
 Keybindings are configured via:
 
 - `~/.config/i3/sxhkd/sxhkdrc`
-- `~/.config/i3/scripts/help` (run manually or with `Super + H`)
+- `~/.config/i3/scripts/help` (run manually or with `Super + Z`)
 
 ---
 
