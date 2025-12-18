@@ -32,20 +32,6 @@ chmod +x install.sh
 
 ---
 
-## 🎨 Appearance & Theming
-
-- Minimal theme with custom wallpapers
-- Polybar with optimized layout: system info (left), workspaces (center), controls (right)
-- Enhanced polybar with multiple font support (Roboto Mono, FontAwesome, Hack Nerd Font)
-- Dunst, rofi, and GTK themes preconfigured
-- Wallpapers stored in `~/.config/i3/wallpaper`
-- GTK Theme: [Orchis](https://github.com/vinceliuice/Orchis-theme)
-- Icon Theme: [Colloid](https://github.com/vinceliuice/Colloid-icon-theme)
-
-> 💡 _Special thanks to [vinceliuice](https://github.com/vinceliuice) for the excellent GTK and icon themes._
-
----
-
 ## 🔑 Keybindings Overview
 
 | Key Combo              | Action                                |
