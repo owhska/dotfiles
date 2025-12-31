@@ -567,6 +567,15 @@ alias ll='eza -la --icons --group-directories-first'
 alias cls='clear'
 alias ..='cd ..'
 alias ...='cd ../..'
+alias gitp='git push -f origin'
+alias v='nvim'
+alias c='clear'
+alias q='exit'
+alias w='micro'
+alias f='yazi'
+alias ff="fastfetch"
+alias sai="sudo apt install -y"
+alias sup="sudo apt update && sudo apt upgrade"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
