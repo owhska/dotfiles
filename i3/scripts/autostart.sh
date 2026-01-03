@@ -1,6 +1,6 @@
 
 # Autostart applications
-## Polybar or tint
+## i3status or tint
 
 
 lxpolkit &
