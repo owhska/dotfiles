@@ -217,6 +217,7 @@ PACKAGES_TERMINAL=(
     emacs-gtk
     ripgrep
     fzf
+    tmux
 )
 
 PACKAGES_FONTS=(
@@ -343,6 +344,11 @@ EOF
     msg "Setting up Neovim config..."
     if [ ! -d "$HOME/.config/nvim" ]; then
     git clone https://github.com/owhska/nvim "$HOME/.config/nvim"
+    fi
+
+    msg "Setting up Tmux config..."
+    if [ ! -d "$HOME/.config/tmux" ]; then
+        git clone https://github.com/owhska/tmux "$HOME/.config/tmux"
     fi
     
     # Copy Emacs config
