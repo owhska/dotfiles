@@ -580,6 +580,7 @@ alias q='exit'
 alias w='micro'
 alias f='yazi'
 alias ff="fastfetch"
+alias t="tmux"
 alias sai="sudo apt install -y"
 alias sup="sudo apt update && sudo apt upgrade"
 
