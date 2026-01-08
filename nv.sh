@@ -386,7 +386,7 @@ PACKAGES_AUDIO=(
 PACKAGES_UTILITIES=(
     avahi-daemon acpi acpid xfce4-power-manager
     flameshot qimgv micro xdg-user-dirs-gtk
-    inxi htop neofetch wget curl git
+    inxi htop wget curl git
 )
 
 PACKAGES_TERMINAL=(
