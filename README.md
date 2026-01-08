@@ -3,7 +3,7 @@
 ### Quick Install
 ```bash
 git clone https://https://github.com/owhska/dotfiles.git
-cd dotfiles
+cd dots
 chmod +x install.sh
 ./install.sh
 
