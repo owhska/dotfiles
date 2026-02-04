@@ -583,6 +583,7 @@ alias ff="fastfetch"
 alias t="tmux"
 alias sai="sudo apt install -y"
 alias sup="sudo apt update && sudo apt upgrade"
+alias disk='df -h | awk "NR==1 || (\$1 ~ /nvme0n1/ && \$6 != \"\")"D'
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
