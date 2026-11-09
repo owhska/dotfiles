@@ -138,6 +138,15 @@ prompt-set-theme() {
 	done
 }
 
+git_branch() {
+    local branch
+    branch=$(git branch --show-current 2>/dev/null)
+
+    if [ -n "$branch" ]; then
+        echo -e " ${BLUE}git:(${RED}${branch}${BLUE})${RESET}"
+    fi
+}
+
 # PS1 -> PS1='\[\e[32m\]➜ \[\e[36m\]\W\[\e[0m\]$(git_branch) \[\e[33m\]$\[\e[0m\] '
 
 prompt-init() {
