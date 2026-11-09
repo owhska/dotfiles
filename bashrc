@@ -52,15 +52,17 @@ shopt -s autocd   2>/dev/null || true
 shopt -s dirspell 2>/dev/null || true
 
 # Aliases
-alias ..='echo "cd .."; cd ..'
-alias ag='rg' # sorry silver searcher
-alias chomd='chmod'
-alias externalip='curl -sS https://ysap.sh/ip'
-alias gerp='grep'
 alias hl='rg --passthru'
-alias l='ls'
-alias ll='ls -lha'
-alias suod='sudo'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias v='nvim'
+alias vim='~/.local/bin/vim'
+alias t="tmux"
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias c="clear"
+alias q="exit"
 
 # Aliases (if applicable)
 grep --color=auto < /dev/null &>/dev/null &&
