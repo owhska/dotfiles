@@ -1,0 +1,9 @@
+[user]
+	name = Matheus Brunes
+	email = brunesaraujo@gmail.com
+[color]
+	ui = auto
+[push]
+	default = matching
+[pull]
+	rebase = false
