@@ -107,6 +107,67 @@ nnoremap <leader>P "+P
 nnoremap dd "_dd
 vnoremap d "_d
 
+set completeopt=menuone,noinsert,noselect
+
+function! DispararOmniAutomatico()
+    if pumvisible() || v:char !~ '\w'
+        return
+    endif
+    if &omnifunc !=# ''
+        call feedkeys("\<C-x>\<C-o>", 'n')
+    else
+        call feedkeys("\<C-x>\<C-n>", 'n')
+    endif
+endfunction
+
+augroup OmniAuto
+    autocmd!
+    autocmd FileType javascript,python,c,cpp,html,css,vim
+                \ autocmd InsertCharPre <buffer> call DispararOmniAutomatico()
+augroup END
+
+function! s:ToggleComment() abort
+    let l:cs = &commentstring
+    let l:prefix = matchstr(l:cs, '^.\{-}\ze\s*%s')
+
+    if empty(l:prefix)
+        echohl WarningMsg | echom "Invalid commentstring: " . l:cs | echohl None
+        return
+    endif
+
+    let l:start_line = line("'<")
+    let l:end_line   = line("'>")
+    if l:start_line > l:end_line
+        let [l:start_line, l:end_line] = [l:end_line, l:start_line]
+    endif
+
+    let l:all_commented = 1
+    let l:prefix_esc = escape(l:prefix, '\.*$^~[]')
+    for i in range(l:start_line, l:end_line)
+        let l = getline(i)
+        if l !~# '^\s*' . l:prefix_esc
+            let l:all_commented = 0
+            break
+        endif
+    endfor
+
+    for i in range(l:start_line, l:end_line)
+        let l = getline(i)
+        if l:all_commented
+            let l:new = substitute(l, '^\s*\zs' . l:prefix_esc . '\s\?', '', '')
+        else
+            let l:indent = matchstr(l, '^\s*')
+            let l:rest   = l[len(l:indent):]
+            let l:new    = l:indent . l:prefix . ' ' . l:rest
+        endif
+        call setline(i, l:new)
+    endfor
+
+    execute "normal! \<Esc>"
+endfunction
+
+vnoremap <leader>cm :<C-u>call <SID>ToggleComment()<CR>
+
 colorscheme default
 set background=light            " Light background is best
 hi Comment ctermfg=63		" Brighten up comment colors
