@@ -44,8 +44,7 @@ set showmatch
 set noswapfile
 set hidden
 
-"nnoremap <silent> <leader>e :Explore<CR>
-nnoremap <silent> <C-e>e :Explore<CR>
+nnoremap <silent> <leader>e :Explore<CR>
 nnoremap <silent> <leader><Tab>   :tabnext<CR>
 nnoremap <silent> <leader><S-Tab> :tabprevious<CR>
 nnoremap <silent> <leader>t :term<CR>
@@ -57,7 +56,7 @@ nnoremap <leader>ww :w<CR>
 nnoremap <leader>q :tabclose<CR>
 nnoremap <C-a> gg<S-v>G
 nnoremap <leader>s :execute "vimgrep /" . input("Search: ") . "/g %" \| copen<CR>
-nnoremap <C-b> :b <C-d>
+nnoremap <C-e> :b <C-d>
 nnoremap <S-Right> :bnext<CR>
 nnoremap <S-Left>  :bprevious<CR>
 
