@@ -17,6 +17,7 @@ set novisualbell
 set backspace=indent,eol,start
 set encoding=utf-8
 set background=dark
+set clipboard=unnamedplus
 
 " indentation
 set autoindent
