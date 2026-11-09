@@ -9,9 +9,6 @@
 # If not running interactively, don't do anything
 [[ -n $PS1 ]] || return
 
-# Load bics, plugins found in bics-plugins
-. ~/.bics/bics || echo '> failed to load bics' >&2
-
 # use vardump instead of parr
 alias parr='vardump'
 
@@ -44,9 +41,6 @@ export LESS_TERMCAP_ZN=$'\e[74m'
 export LESS_TERMCAP_ZV=$'\e[75m'
 export LESS_TERMCAP_ZO=$'\e[73m'
 export LESS_TERMCAP_ZW=$'\e[75m'
-
-# PATH
-path_add ~/bin before
 
 # Shell Options
 shopt -s cdspell
@@ -149,28 +143,6 @@ prompt-init() {
 	local reset=$'\e[0m'
 	local bold=$'\e[1m'
 
-	# custom prompt for YSAP videos
-	if [[ $ITERM_PROFILE == 'YSAP'* ]]; then
-		# username
-		PS1='\[${PROMPT_COLORS[0]}\]\u\['"$reset"'\]'
-
-		# @
-		PS1+='\[${PROMPT_COLORS[1]}\]\['"$bold"'\]@\['"$reset"'\]'
-
-		# hostname
-		PS1+='\[${PROMPT_COLORS[3]}\]ysap '
-
-		# cwd (this makes it too horizontal)
-		# PS1+='\[${PROMPT_COLORS[5]}\]\w '
-
-		# prompt character
-		PS1+='\[${PROMPT_COLORS[2]}\]\$\['"$reset"'\] '
-
-		PROMPT_DIRTRIM=1
-
-		return
-	fi
-
 	# get host info only once
 	local zonename=$(zonename 2>/dev/null)
 	local uname=$(uname | tr '[:upper:]' '[:lower:]')
@@ -236,26 +208,6 @@ PROMPT_DIRTRIM=6
 
 prompt-init
 prompt-set-theme 24
-
-# -- Useful functions
-
-# upload a file to my personal CDN
-cdn() {
-	local file=$1
-	local bname=${file##*/}
-
-	[[ -n $file && -n $bname ]] || return 1
-
-	local url
-	printf -v url '%(%Y/%m/%d)T/%s' -1 "$bname"
-	local remote_file="./cdn/$url"
-
-	# use rsync over scp because we can skip overwriting files
-	rsync -avh --mkpath --progress --ignore-existing -- \
-	    "$file" "cdn:$remote_file" || return 1
-
-	echo "https://cdn.ysap.sh/$url"
-}
 
 # print a colorized diff
 colordiff() {
@@ -449,8 +401,6 @@ untiny() {
 
 # load completion
 . ~/.bash_completion
-
-path_clean
 
 # return success no matter what
 true
