@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-#
-# Best bashrc in history
-#
-# Author: Dave Eddy <dave@daveeddy.com>
-# Date: Sometime in 2011
-# License: MIT
 
 # If not running interactively, don't do anything
 [[ -n $PS1 ]] || return

@@ -1,6 +1,13 @@
 "curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
+set noerrorbells
+set novisualbell
+set t_vb=
+set belloff=all
+set shortmess+=cI
+set t_te=
+
 let mapleader = " "
 let maplocalleader = "\\"
 
