@@ -138,6 +138,8 @@ prompt-set-theme() {
 	done
 }
 
+# PS1 -> PS1='\[\e[32m\]➜ \[\e[36m\]\W\[\e[0m\]$(git_branch) \[\e[33m\]$\[\e[0m\] '
+
 prompt-init() {
 	local red=$'\e[31m'
 	local reset=$'\e[0m'
