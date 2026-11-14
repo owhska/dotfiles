@@ -3,10 +3,8 @@
 
 set noerrorbells
 set novisualbell
-set t_vb=
 set belloff=all
 set shortmess+=cI
-set t_te=
 
 let mapleader = " "
 let maplocalleader = "\\"
