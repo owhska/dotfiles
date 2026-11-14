@@ -8,7 +8,6 @@ alias parr='vardump'
 
 # -- Environment
 
-# Set environment and configure bash
 HISTCONTROL='ignoredups'
 HISTSIZE=5000
 HISTFILESIZE=5000
@@ -42,171 +41,145 @@ shopt -s checkwinsize
 shopt -s extglob
 
 # Bash Version >= 4
-shopt -s autocd   2>/dev/null || true
+shopt -s autocd 2>/dev/null || true
 shopt -s dirspell 2>/dev/null || true
 
 # Aliases
 alias hl='rg --passthru'
 alias ..='cd ..'
 alias ...='cd ../..'
-alias v='nvim'
-alias vim='~/.local/bin/vim'
-alias t="tmux"
+alias v='vim'
+alias t='tmux'
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-alias c="clear"
-alias q="exit"
+alias c='clear'
+alias q='exit'
 
 # Aliases (if applicable)
 grep --color=auto < /dev/null &>/dev/null &&
     alias grep='grep --color=auto'
+
 command -v xdg-open &>/dev/null &&
     alias open='xdg-open'
+
 command -v system_profiler &>/dev/null &&
     alias wattage='system_profiler SPPowerDataType | grep Wattage'
 
 # Enable color support of ls
 if ls --color=auto /dev/null &>/dev/null; then
-	alias ls='ls -p --color=auto'
+    alias ls='ls -p --color=auto'
 else
-	alias ls='ls -p -G'
+    alias ls='ls -p -G'
 fi
 
 # -- Git Aliases
 
-alias nb='git checkout -b "$USER-$(date +%s)"' # new branch
+alias nb='git checkout -b "$USER-$(date +%s)"'
 alias ga='git add . --all'
 alias gb='git branch'
 alias gc='git clone'
-alias gci='git commit -a'
+alias gci='git commit'
 alias gco='git checkout'
 alias gd="git diff ':!*lock'"
-alias gdf='git diff' # git diff (full)
+alias gdf='git diff'
 alias gi='git init'
 alias gl='git log'
 alias gp='git push origin HEAD'
-alias gr='git rev-parse --show-toplevel' # git root
+alias gr='git rev-parse --show-toplevel'
 alias gs='git status'
 alias gt='git tag'
-alias gu='git pull' # gu = git update
+alias gu='git pull'
 
-# because `master` is sometimes `main` (or others), these must be functions.
-gmb() { # git main branch
-	local main
-	main=$(git symbolic-ref --short refs/remotes/origin/HEAD)
-	main=${main#origin/}
-	[[ -n $main ]] || return 1
-	echo "$main"
+# Git main branch
+gmb() {
+    local main
+    main=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null)
+    main=${main#origin/}
+    [[ -n $main ]] || return 1
+    echo "$main"
 }
 
-# show the diff from inside a branch to the main branch
-gbd() { # git branch diff
-	local mb
-	mb=$(gmb) || return 1
-	git diff "$mb..HEAD"
+# Show diff from current branch to main
+gbd() {
+    local mb
+    mb=$(gmb) || return 1
+    git diff "$mb..HEAD"
 }
 
-# checkout the main branch and update it
-gcm() { # git checkout $main
-	local mb
-	mb=$(gmb) || return 1
-	git checkout "$mb" && git pull
+# Checkout main branch and update
+gcm() {
+    local mb
+    mb=$(gmb) || return 1
+    git checkout "$mb" && git pull
 }
 
-# merge the main branch into our branch
-gmm() { # git merge $main
-	local mb
-	mb=$(gmb) || return 1
-	git merge "$mb"
+# Merge main into current branch
+gmm() {
+    local mb
+    mb=$(gmb) || return 1
+    git merge "$mb"
 }
 
 # -- Prompt logic
 
-# change the prompt colors to a theme
-# there are 116 possible themes - themes are 0-115
 prompt-set-theme() {
-	local theme=${1:-0}
-	local j=0
-	for ((i = theme; i <= 255; i += 30)); do
-		PROMPT_COLORS[j]=$'\e[38;5;'${i}m
-		((j++))
-	done
+    local theme=${1:-0}
+    local j=0
+    for ((i = theme; i <= 255; i += 30)); do
+        PROMPT_COLORS[j]=$'\e[38;5;'${i}m
+        ((j++))
+    done
 }
 
 git_branch() {
     local branch
     branch=$(git branch --show-current 2>/dev/null)
 
-    if [ -n "$branch" ]; then
+    if [[ -n "$branch" ]]; then
         echo -e " ${BLUE}git:(${RED}${branch}${BLUE})${RESET}"
     fi
 }
 
-# PS1 -> PS1='\[\e[32m\]➜ \[\e[36m\]\W\[\e[0m\]$(git_branch) \[\e[33m\]$\[\e[0m\] '
-
 prompt-init() {
-	local red=$'\e[31m'
-	local reset=$'\e[0m'
-	local bold=$'\e[1m'
+    local red=$'\e[31m'
+    local reset=$'\e[0m'
+    local bold=$'\e[1m'
 
-	# get host info only once
-	local zonename=$(zonename 2>/dev/null)
-	local uname=$(uname | tr '[:upper:]' '[:lower:]')
+    # Exit code of last process
+    PS1='$(c=$?;((c!=0))&&echo "\['"$red"'\]($c) \['"$reset"'\]")'
 
-	# Construct the prompt:
-	# [(exit code)] <user> - <hostname> <uname> <cwd> [git branch] <$|#>
+    # Username
+    PS1+='\[${PROMPT_COLORS[0]}\]\['"$bold"'\]'
+    PS1+='$(((UID==0))&&echo "\['"$red"'\]")\u\['"$reset"'\] '
 
-	# exit code of last process
-	PS1='$(c=$?;((c!=0))&&echo "\['"$red"'\]($c) \['"$reset"'\]")'
+    # Current working directory
+    PS1+='\[${PROMPT_COLORS[5]}\]\w '
 
-	# username (red for root)
-	PS1+='\[${PROMPT_COLORS[0]}\]\['"$bold"'\]'
-	PS1+='$(((UID==0))&&echo "\['"$red"'\]")\u\['"$reset"'\] - '
+    # Optional Git branch
+    PS1+='$(b=$(git rev-parse --abbrev-ref HEAD 2>/dev/null);[[ -n $b ]]'
+    PS1+='&&echo -n "\[${PROMPT_COLORS[2]}\](\[${PROMPT_COLORS[3]}\]'
+    PS1+='git:$b\[${PROMPT_COLORS[2]}\]) ")'
 
-	# zonename (global zone warning)
-	if [[ $zonename == 'global' ]]; then
-		PS1+='\['"$red"'\]\['"$bold"'\]GZ:\['"$reset"'\]'
-	fi
+    # Prompt character
+    PS1+='\[${PROMPT_COLORS[0]}\]\$\['"$reset"'\] '
 
-	# hostname
-	PS1+='\[${PROMPT_COLORS[3]}\]\h '
-
-	# uname
-	PS1+='\[${PROMPT_COLORS[2]}\]'"$uname"' '
-
-	# cwd
-	PS1+='\[${PROMPT_COLORS[5]}\]\w '
-
-	# optional git branch
-	#
-	# THIS IS UNFORTUNATE LOL. i hate how long this line is, but i
-	# purposefully try to keep this as tight as possible because even just
-	# spacing it all out has a noticeable effect on speed.
-	PS1+='$(b=$(git rev-parse --abbrev-ref HEAD 2>/dev/null);[[ -n $b ]]'
-	PS1+='&&echo -n "\[${PROMPT_COLORS[2]}\](\[${PROMPT_COLORS[3]}\]'
-	PS1+='git:$b\[${PROMPT_COLORS[2]}\]) ")'
-
-	# prompt character
-	PS1+='\[${PROMPT_COLORS[0]}\]\$\['"$reset"'\] '
-
-	# initalize a basic theme just to ensure some colors are set
-	prompt-set-theme 0
+    # Initialize default theme
+    prompt-set-theme 0
 }
 
 prompt-update() {
-	local user=$USER
-	local host=${HOSTNAME%%.*}
+    local user=$USER
+    local host=${HOSTNAME%%.*}
 
-	# get the PWD from the prompt as that handles escaping dangerous chars
-	# for us
-	local s='\w'
-	local pwd=${s@P}
+    # Get PWD safely
+    local s='\w'
+    local pwd=${s@P}
 
-	# update title bar
-	local ssh=
-	[[ -n $SSH_CLIENT ]] && ssh='[ssh] '
-	printf '\e]0;%s%s@%s:%s\a' "$ssh" "$user" "$host" "$pwd"
+    # Update terminal title
+    local ssh=
+    [[ -n $SSH_CLIENT ]] && ssh='[ssh] '
+    printf '\e]0;%s%s@%s:%s\a' "$ssh" "$user" "$host" "$pwd"
 }
 
 PROMPT_COLORS=()
@@ -216,198 +189,202 @@ PROMPT_DIRTRIM=6
 prompt-init
 prompt-set-theme 24
 
-# print a colorized diff
+# Print a colorized diff
 colordiff() {
-	local red=$'\e[31m'
-	local green=$'\e[32m'
-	local cyan=$'\e[36m'
-	local reset=$'\e[0m'
+    local red=$'\e[31m'
+    local green=$'\e[32m'
+    local cyan=$'\e[36m'
+    local reset=$'\e[0m'
 
-	diff -u "$@" | awk \
-		-v "red=$red" -v "green=$green" \
-		-v "cyan=$cyan" -v "reset=$reset" \
-		'
-	/^-/ {
-		printf("%s", red);
-	}
-	/^\+/ {
-		printf("%s", green);
-	}
-	/^@/ {
-		printf("%s", cyan);
-	}
+    diff -u "$@" | awk \
+        -v "red=$red" -v "green=$green" \
+        -v "cyan=$cyan" -v "reset=$reset" '
+        /^-/ { printf("%s", red) }
+        /^\+/ { printf("%s", green) }
+        /^@/ { printf("%s", cyan) }
+        { print $0 reset }
+    '
 
-	{
-		print $0 reset;
-	}'
-
-	return "${PIPESTATUS[0]}"
+    return "${PIPESTATUS[0]}"
 }
 
 # Print all 256 colors
 colors() {
-	local i
-	for i in {0..255}; do
-		printf '\e[38;5;%dmcolor %d\n' "$i" "$i"
-	done
-	printf '\e[0m'
+    local i
+    for i in {0..255}; do
+        printf '\e[38;5;%dmcolor %d\n' "$i" "$i"
+    done
+    printf '\e[0m'
 }
 
-# Copy stdin to the clipboard
+# Copy stdin to clipboard
 copy() {
-	pbcopy 2>/dev/null ||
-	    xsel 2>/dev/null ||
-	    clip.exe
+    pbcopy 2>/dev/null ||
+        xsel 2>/dev/null ||
+        clip.exe
+}
 
+cpy() {
+	cat "$1" | xclip -selection clipboard
 }
 
 dump-palette() {
-	local fd
-	exec {fd}<>/dev/tty || fatal 'failed to open TTY'
+    local fd
+    exec {fd}<>/dev/tty || {
+        echo "failed to open TTY"
+        return 1
+    }
 
-	local re='rgb:([0-9a-f]{4})\/([0-9a-f]{4})\/([0-9a-f]{4})'
-	local code s r g b
-	for code in 4\;{0..15} 10 11 12 17 19; do
-		# query the terminal for palette info
-		printf '\e]%s;?\e\\' "$code" >&$fd
+    local re='rgb:([0-9a-f]{4})/([0-9a-f]{4})/([0-9a-f]{4})'
+    local code s r g b
 
-		# read the response into a string (removing escape chars)
-		read -rs -d '\' -u "$fd" s
-		s=${s//$'\e'}
+    for code in 4\;{0..15} 10 11 12 17 19; do
+        printf '\e]%s;?\e\\' "$code" >&$fd
+        read -rs -d '\' -u "$fd" s
+        s=${s//$'\e'}
 
-		if ! [[ $s =~ $re ]]; then
-			echo "$code = <failed>"
-			continue
-		fi
+        if ! [[ $s =~ $re ]]; then
+            echo "$code = <failed>"
+            continue
+        fi
 
-		# parse the response
-		r=${BASH_REMATCH[1]}
-		g=${BASH_REMATCH[2]}
-		b=${BASH_REMATCH[3]}
+        r=${BASH_REMATCH[1]}
+        g=${BASH_REMATCH[2]}
+        b=${BASH_REMATCH[3]}
 
-		r=$((16#$r / 257))
-		g=$((16#$g / 257))
-		b=$((16#$b / 257))
+        r=$((16#$r / 257))
+        g=$((16#$g / 257))
+        b=$((16#$b / 257))
 
-		printf '%s = #%02x%02x%02x\n' "$code" "$r" "$g" "$b"
-	done
-	exec {fd}>&-
+        printf '%s = #%02x%02x%02x\n' "$code" "$r" "$g" "$b"
+    done
+
+    exec {fd}>&-
 }
 
-# Convert epoch to human readable (print current date if no args)
+# Convert epoch to human readable
 epoch() {
-	local num=${1:--1}
-	printf '%(%B %d, %Y %-I:%M:%S %p %Z)T\n' "$num"
+    local num=${1:--1}
+    printf '%(%B %d, %Y %-I:%M:%S %p %Z)T\n' "$num"
 }
 
-# Open the current path or file in GitHub
+# Open current path or file in GitHub
 gho() {
-	local file=$1
-	local remote=${2:-origin}
+    local file=$1
+    local remote=${2:-origin}
 
-	# get the git root dir, branch, and remote URL
-	local gr=$(git rev-parse --show-toplevel)
-	local branch=$(git rev-parse --abbrev-ref HEAD)
-	local url=$(git config --get "remote.$remote.url")
+    local gr branch url
+    gr=$(git rev-parse --show-toplevel) || return 1
+    branch=$(git rev-parse --abbrev-ref HEAD) || return 1
+    url=$(git config --get "remote.$remote.url") || return 1
 
-	[[ -n $gr && -n $branch && -n $remote ]] || return 1
+    [[ -n $gr && -n $branch && -n $url ]] || return 1
 
-	# construct the path
-	local path=${PWD/#$gr/}
-	[[ -n $file ]] && path+=/$file
+    local path=${PWD/#$gr/}
+    [[ -n $file ]] && path+=/$file
 
-	# extract the username and repo name
-	local a
-	IFS=:/ read -r -a a <<< "$url"
-	local len=${#a[@]}
-	local user=${a[len-2]}
-	local repo=${a[len-1]%.git}
+    local a
+    IFS=:/ read -r -a a <<< "$url"
 
-	url="https://github.com/$user/$repo/tree/$branch$path"
-	echo "$url"
-	open "$url"
+    local len=${#a[@]}
+    local user=${a[len-2]}
+    local repo=${a[len-1]%.git}
+
+    url="https://github.com/$user/$repo/tree/$branch$path"
+
+    echo "$url"
+    open "$url"
 }
 
 # Platform-independent interfaces
 interfaces() {
-	node <<-EOF
-	var os = require('os');
-	var i = os.networkInterfaces();
-	Object.keys(i).forEach(function(name) {
-		i[name].forEach(function(int) {
-			if (int.family === 'IPv4') {
-				console.log('%s: %s', name, int.address);
-			}
-		});
-	});
-	EOF
+    node <<'EOF'
+var os = require('os');
+var i = os.networkInterfaces();
+
+Object.keys(i).forEach(function(name) {
+    i[name].forEach(function(int) {
+        if (int.family === 'IPv4') {
+            console.log('%s: %s', name, int.address);
+        }
+    });
+});
+EOF
 }
 
 # Calculate CPU load / Core Count
 load() {
-	node -p <<-EOF
-	var os = require('os');
-	var c = os.cpus().length;
-	os.loadavg().map(function(l) {
-		return (l/c).toFixed(2);
-	}).join(' ');
-	EOF
+    node -p <<'EOF'
+var os = require('os');
+var c = os.cpus().length;
+
+os.loadavg().map(function(l) {
+    return (l/c).toFixed(2);
+}).join(' ');
+EOF
 }
 
 # Platform-independent memory usage
 meminfo() {
-	node <<-EOF
-	var os = require('os');
-	var free = os.freemem();
-	var total = os.totalmem();
-	var used = total - free;
-	console.log('memory: %dmb / %dmb (%d%%)',
-	    Math.round(used / 1024 / 1024),
-	    Math.round(total / 1024 / 1024),
-	    Math.round(used * 100 / total));
-	EOF
+    node <<'EOF'
+var os = require('os');
+var free = os.freemem();
+var total = os.totalmem();
+var used = total - free;
+
+console.log('memory: %dmb / %dmb (%d%%)',
+    Math.round(used / 1024 / 1024),
+    Math.round(total / 1024 / 1024),
+    Math.round(used * 100 / total));
+EOF
 }
 
-# print lines over X columns (defaults to 80)
+# Print lines over X columns
 over() {
-	local c=${1:-80}
-	expand | awk -v "c=$c" 'length($0) > c {
-		printf("%4d %s\n", NR, $0);
-	}'
+    local c=${1:-80}
+
+    expand | awk -v "c=$c" 'length($0) > c {
+        printf("%4d %s\n", NR, $0);
+    }'
 }
 
-# print a rainbow if truecolor is available to the terminal
+# Print rainbow if truecolor is available
 truecolor-rainbow() {
-	local i r g b
-	for ((i = 0; i < 77; i++)); do
-		r=$((255 - (i * 255 / 76)))
-		g=$((i * 510 / 76))
-		b=$((i * 255 / 76))
-		((g > 255)) && g=$((510 - g))
-		printf '\033[48;2;%d;%d;%dm ' "$r" "$g" "$b"
-	done
-	printf '\e[0m\n'
+    local i r g b
+
+    for ((i = 0; i < 77; i++)); do
+        r=$((255 - (i * 255 / 76)))
+        g=$((i * 510 / 76))
+        b=$((i * 255 / 76))
+
+        ((g > 255)) && g=$((510 - g))
+
+        printf '\033[48;2;%d;%d;%dm ' "$r" "$g" "$b"
+    done
+
+    printf '\e[0m\n'
 }
 
-# Follow redirects to untiny a tiny url
+# Follow redirects to untiny a tiny URL
 untiny() {
-	local url=$1
+    local url=$1
 
-	while [[ -n $url ]]; do
-		echo "-> $url"
-		url=$(curl -sSI -o /dev/null -w '%header{location}' "$url") \
-		    || return 1
-	done
+    while [[ -n $url ]]; do
+        echo "-> $url"
+        url=$(curl -sSI -o /dev/null -w '%header{location}' "$url") ||
+            return 1
+    done
 
-	return 0
+    return 0
 }
 
 # Load external files
 . ~/.bash_aliases 2>/dev/null
 . ~/.bashrc.local 2>/dev/null
 
-# load completion
-. ~/.bash_completion
+# Load completion
+. ~/.bash_completion 2>/dev/null
 
-# return success no matter what
+# Return success
 true
+
