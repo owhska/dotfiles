@@ -19,6 +19,23 @@ symlink() {
 	ln -nsf "$@"
 }
 
+install-nvim() {
+    local target="$HOME/.config/nvim"
+
+    if [[ -d "$target/.git" ]]; then
+        echo "Neovim already installed $target"
+        return 0
+    fi
+
+    if [[ -e "$target" ]]; then
+        echo "Erro: $target already exists and it's not a git repository."
+        return 1
+    fi
+
+    mkdir -p "$HOME/.config"
+    git clone https://github.com/q-as/nvim "$target" || return 1
+}
+
 git submodule init
 git submodule update
 
@@ -57,5 +74,7 @@ else
 	echo "    vim +'PlugInstall --sync' +qa"
 	echo "    vim +'PlugUpdate --sync' +qa"
 fi
+
+install-nvim()
 
 true
