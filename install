@@ -68,6 +68,6 @@ else
 	echo "    vim +'PlugUpdate --sync' +qa"
 fi
 
-install-nvim()
+install-nvim
 
 true
