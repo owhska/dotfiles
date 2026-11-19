@@ -82,7 +82,7 @@ alias gb='git branch'
 alias gc='git clone'
 alias gci='git commit -a'
 alias gco='git checkout'
-alias gd="git diff ':!*lock'"
+alias gd="git diff ':!\*lock'"
 alias gdf='git diff'
 alias gi='git init'
 alias gl='git log'
@@ -95,81 +95,79 @@ alias gu='git pull'
 # Git main branch
 gmb() {
     local main
+
     main=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null)
     main=${main#origin/}
+
     [[ -n $main ]] || return 1
+
     echo "$main"
 }
 
 # Show diff from current branch to main
 gbd() {
     local mb
+
     mb=$(gmb) || return 1
+
     git diff "$mb..HEAD"
 }
 
 # Checkout main branch and update
 gcm() {
     local mb
+
     mb=$(gmb) || return 1
+
     git checkout "$mb" && git pull
 }
 
 # Merge main into current branch
 gmm() {
     local mb
+
     mb=$(gmb) || return 1
+
     git merge "$mb"
 }
 
 # -- Prompt logic
 
+# Prompt colors
+RED=$'\e[31m'
+GREEN=$'\e[32m'
+BLUE=$'\e[34m'
+CYAN=$'\e[36m'
+YELLOW=$'\e[33m'
+RESET=$'\e[0m'
+BOLD=$'\e[1m'
+
+# Initialize prompt theme
 prompt-set-theme() {
     local theme=${1:-0}
     local j=0
+
     for ((i = theme; i <= 255; i += 30)); do
         PROMPT_COLORS[j]=$'\e[38;5;'${i}m
         ((j++))
     done
 }
 
+# Git branch
 git_branch() {
     local branch
+
     branch=$(git branch --show-current 2>/dev/null)
 
     if [[ -n "$branch" ]]; then
-        echo -e " ${BLUE}git:(${RED}${branch}${BLUE})${RESET}"
+        printf ' %s(git:%s%s%s)%s' \
+            "$BLUE" "$RED" "$branch" "$BLUE" "$RESET"
     fi
 }
 
-prompt-init() {
-    local red=$'\e[31m'
-    local reset=$'\e[0m'
-    local bold=$'\e[1m'
-
-    # Exit code of last process
-    PS1='$(c=$?;((c!=0))&&echo "\['"$red"'\]($c) \['"$reset"'\]")'
-
-    # Username
-    PS1+='\[${PROMPT_COLORS[0]}\]\['"$bold"'\]'
-    PS1+='$(((UID==0))&&echo "\['"$red"'\]")\u\['"$reset"'\] '
-
-    # Current working directory
-    PS1+='\[${PROMPT_COLORS[5]}\]\w '
-
-    # Optional Git branch
-    PS1+='$(b=$(git rev-parse --abbrev-ref HEAD 2>/dev/null);[[ -n $b ]]'
-    PS1+='&&echo -n "\[${PROMPT_COLORS[2]}\](\[${PROMPT_COLORS[3]}\]'
-    PS1+='git:$b\[${PROMPT_COLORS[2]}\]) ")'
-
-    # Prompt character
-    PS1+='\[${PROMPT_COLORS[0]}\]\$\['"$reset"'\] '
-
-    # Initialize default theme
-    prompt-set-theme 0
-}
-
+# Update terminal title and prompt
 prompt-update() {
+    local exit_code=$?
     local user=$USER
     local host=${HOSTNAME%%.*}
 
@@ -180,17 +178,114 @@ prompt-update() {
     # Update terminal title
     local ssh=
     [[ -n $SSH_CLIENT ]] && ssh='[ssh] '
-    printf '\e]0;%s%s@%s:%s\a' "$ssh" "$user" "$host" "$pwd"
+
+    printf '\e]0;%s%s@%s:%s\a' \
+        "$ssh" "$user" "$host" "$pwd"
+
+    # Exit code
+    local status_prompt=
+
+    if ((exit_code != 0)); then
+        status_prompt='\['"$RED"'\]('"$exit_code"') \['"$RESET"'\]'
+    fi
+
+    # Git branch
+    local branch
+    branch=$(git branch --show-current 2>/dev/null)
+
+    # Select prompt style
+    case "$PROMPT_STYLE" in
+
+        # Original prompt
+        0)
+            local user_color=${PROMPT_COLORS[0]}
+
+            ((UID == 0)) && user_color=$RED
+
+            PS1="$status_prompt"
+            PS1+='\['"$user_color"'\]\['"$BOLD"'\]\u\['"$RESET"'\] '
+            PS1+='\[${PROMPT_COLORS[5]}\]\w '
+
+            if [[ -n $branch ]]; then
+                PS1+='\[${PROMPT_COLORS[2]}\]('
+                PS1+='\[${PROMPT_COLORS[3]}\]git:'"$branch"
+                PS1+='\[${PROMPT_COLORS[2]}\]) '
+            fi
+
+            PS1+='\[${PROMPT_COLORS[0]}\]\$\['"$RESET"'\] '
+            ;;
+
+        # Arrow prompt
+        1)
+            local symbol_color=$GREEN
+
+            ((exit_code != 0)) && symbol_color=$RED
+
+            PS1='\['"$symbol_color"'\]➜ \['"$RESET"'\]'
+            PS1+='\['"$CYAN"'\]\W\['"$RESET"'\]'
+
+            if [[ -n $branch ]]; then
+                PS1+='\['"$BLUE"'\] git:(\['"$RED"'\]'
+                PS1+="$branch"
+                PS1+='\['"$BLUE"'\])\['"$RESET"'\]'
+            fi
+
+            PS1+=' \['"$YELLOW"'\]\$\['"$RESET"'\] '
+            ;;
+
+    esac
 }
 
+# Initialize original prompt
+prompt-init() {
+    PROMPT_STYLE=0
+    prompt-update
+}
+
+# Initialize arrow prompt
+prompt-init-arrow() {
+    PROMPT_STYLE=1
+    prompt-update
+}
+
+# Select prompt
+# 0 = Original
+# 1 = Arrow
+prompt-select() {
+    case "$1" in
+        0|original)
+            PROMPT_STYLE=0
+            ;;
+        1|arrow)
+            PROMPT_STYLE=1
+            ;;
+        *)
+            echo "Usage: prompt-select {0|1|original|arrow}"
+            return 1
+            ;;
+    esac
+
+    prompt-update
+}
+
+# Prompt configuration
 PROMPT_COLORS=()
-PROMPT_COMMAND=prompt-update
 PROMPT_DIRTRIM=6
 
-prompt-init
+# Default theme
 prompt-set-theme 24
 
-# Print a colorized diff
+# Default prompt
+PROMPT_STYLE=0
+
+# Update prompt before each command
+PROMPT_COMMAND=prompt-update
+
+# Initialize prompt
+prompt-init
+
+# -- Print a colorized diff
+
 colordiff() {
     local red=$'\e[31m'
     local green=$'\e[32m'
@@ -212,9 +307,11 @@ colordiff() {
 # Print all 256 colors
 colors() {
     local i
+
     for i in {0..255}; do
         printf '\e[38;5;%dmcolor %d\n' "$i" "$i"
     done
+
     printf '\e[0m'
 }
 
@@ -226,11 +323,13 @@ copy() {
 }
 
 cpy() {
-	cat "$1" | xclip -selection clipboard
+    cat "$1" | xclip -selection clipboard
 }
 
+# Dump terminal palette
 dump-palette() {
     local fd
+
     exec {fd}<>/dev/tty || {
         echo "failed to open TTY"
         return 1
@@ -266,6 +365,7 @@ dump-palette() {
 # Convert epoch to human readable
 epoch() {
     local num=${1:--1}
+
     printf '%(%B %d, %Y %-I:%M:%S %p %Z)T\n' "$num"
 }
 
@@ -275,6 +375,7 @@ gho() {
     local remote=${2:-origin}
 
     local gr branch url
+
     gr=$(git rev-parse --show-toplevel) || return 1
     branch=$(git rev-parse --abbrev-ref HEAD) || return 1
     url=$(git config --get "remote.$remote.url") || return 1
@@ -285,6 +386,7 @@ gho() {
     [[ -n $file ]] && path+=/$file
 
     local a
+
     IFS=:/ read -r -a a <<< "$url"
 
     local len=${#a[@]}
@@ -372,6 +474,7 @@ untiny() {
 
     while [[ -n $url ]]; do
         echo "-> $url"
+
         url=$(curl -sSI -o /dev/null -w '%header{location}' "$url") ||
             return 1
     done
@@ -388,4 +491,3 @@ untiny() {
 
 # Return success
 true
-
