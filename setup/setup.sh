@@ -16,6 +16,8 @@ source "$SCRIPT_DIR/environments/i3wm.sh"
 source "$SCRIPT_DIR/environments/sway.sh"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/environments/xfce.sh"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/environments/gnome.sh"
 
 show_menu() {
     printf '\n'
@@ -27,6 +29,7 @@ show_menu() {
     printf '%s\n' '  1) i3wm'
     printf '%s\n' '  2) Sway'
     printf '%s\n' '  3) XFCE'
+    printf '%s\n' '  4) GNOME (minimal)'
     printf '\n'
     printf '%s\n' '  0) Exit'
     printf '%s\n' '========================================'
@@ -47,6 +50,10 @@ while true; do
             ;;
         3)
             install_xfce
+            break
+            ;;
+        4)
+            install_gnome
             break
             ;;
         0)
