@@ -16,5 +16,11 @@ install_i3wm() {
                 i3-wm i3status dmenu \
                 picom feh network-manager-applet
             ;;
+        void)
+            install_packages \
+                xorg xinit xrandr \
+                i3 i3status dmenu \
+                picom feh NetworkManager network-manager-applet
+            ;;
     esac
 }

@@ -10,12 +10,12 @@ fi
 . /etc/os-release
 
 case "${ID:-}" in
-    debian|ubuntu|arch)
+    debian|ubuntu|arch|void)
         printf '%s\n' "$ID"
         ;;
     *)
         echo "Error: unsupported distribution '${ID:-unknown}'." >&2
-        echo "Supported distributions: Debian, Ubuntu and Arch Linux." >&2
+        echo "Supported distributions: Debian, Ubuntu, Arch Linux and Void Linux." >&2
         exit 1
         ;;
 esac

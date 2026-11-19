@@ -10,5 +10,8 @@ install_xfce() {
         arch)
             install_packages xorg-server xfce4 xfce4-goodies network-manager-applet
             ;;
+        void)
+            install_packages xorg xfce4 xfce4-goodies NetworkManager network-manager-applet
+            ;;
     esac
 }

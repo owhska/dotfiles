@@ -16,5 +16,11 @@ install_sway() {
                 swayidle wl-clipboard \
                 grim slurp xorg-xwayland network-manager-applet
             ;;
+        void)
+            install_packages \
+                sway waybar foot fuzzel \
+                swayidle wl-clipboard \
+                grim slurp xwayland NetworkManager
+            ;;
     esac
 }

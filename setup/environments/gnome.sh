@@ -18,5 +18,12 @@ install_gnome() {
                 nautilus gvfs \
                 foot gnome-keyring
             ;;
+        void)
+            # Void's gnome-core metapackage is the minimal supported GNOME set.
+            # D-Bus and elogind provide the required system/session services.
+            install_packages \
+                gnome-core dbus elogind \
+                nautilus foot
+            ;;
     esac
 }
